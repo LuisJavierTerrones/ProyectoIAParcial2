@@ -1,0 +1,7 @@
+{
+  "seed": 42,
+  "hill_climbing": {"initial_solutions": 10, "max_iterations": 500},
+  "simulated_annealing": {"runs": 20, "initial_temperature": 100.0, "cooling_rate": 0.995, "minimum_temperature": 0.01},
+  "genetic_algorithm": {"runs": 20, "population_size": 40, "generations": 150, "crossover_rate": 0.85, "mutation_rate": 0.15, "tournament_size": 3},
+  "minimax": {"depth": 6}
+}
