@@ -17,6 +17,7 @@ from logismart.algorithms.local_search import multiple_starts
 from logismart.algorithms.metaheuristics import simulated_annealing, genetic_algorithm
 from logismart.algorithms.game_theory import analyze_game, STRATEGIES_A, STRATEGIES_B
 from logismart.algorithms.minimax import compare
+from logismart.strategy_integration import apply_strategic_decisions
 from logismart.experiments import run_experiments
 
 st.set_page_config(page_title="LogiSmart AI", page_icon="🚚", layout="wide")
@@ -190,35 +191,246 @@ with opt_tab:
             b.metric("Promedio de evaluaciones",f"{df[eval_col].mean():,.1f}")
             st.bar_chart(df.set_index(df.columns[0])[[cost_col,eval_col]] if len(df)<30 else df[[cost_col,eval_col]])
 
+
 with game_tab:
     st.subheader("Teoría de juegos")
-    game=analyze_game()
-    a,b=st.columns(2)
+
+    game = analyze_game()
+
+    a, b = st.columns(2)
+
     with a:
-        st.markdown("**Matriz de pagos · Jugador A (empresa)**")
-        st.dataframe(pd.DataFrame(game["payoff_a"],index=STRATEGIES_A,columns=STRATEGIES_B),use_container_width=True)
+        st.markdown("**Matriz de pagos · Empresa**")
+        st.dataframe(
+            pd.DataFrame(
+                game["payoff_a"],
+                index=STRATEGIES_A,
+                columns=STRATEGIES_B
+            ),
+            use_container_width=True
+        )
+
     with b:
-        st.markdown("**Matriz de pagos · Jugador B (competidor)**")
-        st.dataframe(pd.DataFrame(game["payoff_b"],index=STRATEGIES_A,columns=STRATEGIES_B),use_container_width=True)
+        st.markdown("**Matriz de pagos · Competidor**")
+        st.dataframe(
+            pd.DataFrame(
+                game["payoff_b"],
+                index=STRATEGIES_A,
+                columns=STRATEGIES_B
+            ),
+            use_container_width=True
+        )
+
     if game["nash_pure"]:
         for n in game["nash_pure"]:
-            st.success(f"Equilibrio de Nash: {n[0]} / {n[1]} · pagos ({n[2]:g}, {n[3]:g})")
+            st.success(
+                f"Equilibrio de Nash: {n[0]} / {n[1]} "
+                f"· Pagos ({n[2]:g}, {n[3]:g})"
+            )
     else:
         st.info("No se encontró equilibrio puro.")
-    st.write("**Estrategias dominantes A:**", game["dominant_a"] or "No hay")
-    st.write("**Estrategias dominantes B:**", game["dominant_b"] or "No hay")
-    st.caption("Los pagos son valores didácticos definidos en el modelo del proyecto.")
+
+    st.write("**Estrategias dominantes de la empresa:**",
+             game["dominant_a"] or "No hay")
+
+    st.write("**Estrategias dominantes del competidor:**",
+             game["dominant_b"] or "No hay")
+
+    st.caption(
+        "Los pagos representan supuestos didácticos del modelo."
+    )
+
     st.divider()
+
     st.subheader("Minimax vs poda alfa-beta")
-    depth=st.slider("Profundidad de búsqueda",min_value=1,max_value=8,value=PARAMS["minimax"]["depth"])
-    if st.button("Calcular árbol adversario",key="run_minimax"):
-        result=compare(depth,scenario.resource_capacity)
-        x,y,z=st.columns(3)
-        x.metric("Valor minimax",result["minimax_value"])
-        y.metric("Nodos Minimax",result["minimax_nodes"])
-        z.metric("Nodos alfa-beta",result["alphabeta_nodes"])
-        st.metric("Ramas podadas",result["pruned"])
-        st.success("Ambos algoritmos coinciden en el valor." if result["same_value"] else "Los valores no coinciden; revisar implementación.")
+
+    depth = st.slider(
+        "Profundidad de búsqueda",
+        min_value=1,
+        max_value=8,
+        value=PARAMS["minimax"]["depth"]
+    )
+
+    if st.button("Calcular árbol adversario", key="run_minimax"):
+        result = compare(depth, scenario.resource_capacity)
+
+        x, y, z = st.columns(3)
+
+        x.metric("Valor Minimax", result["minimax_value"])
+        y.metric("Nodos Minimax", result["minimax_nodes"])
+        z.metric("Nodos alfa-beta", result["alphabeta_nodes"])
+
+        m1, m2, m3 = st.columns(3)
+
+        m1.metric("Ramas podadas", result["pruned"])
+        m2.metric("Unidades asignadas", result["best_action"])
+        m3.metric("Unidades restantes", result["remaining_units"])
+
+        st.session_state["minimax_result"] = result
+
+        if result["same_value"]:
+            st.success("Minimax y alfa-beta obtuvieron el mismo valor.")
+        else:
+            st.error("Los resultados no coinciden.")
+
+    st.divider()
+
+    st.subheader("Integración de decisiones estratégicas")
+
+    st.write(
+        "Selecciona la estrategia del competidor. "
+        "El sistema aplicará sus consecuencias al escenario "
+        "y volverá a calcular la ruta con A*."
+    )
+
+    default_strategy = (
+        game["nash_pure"][0][1]
+        if game["nash_pure"]
+        else STRATEGIES_B[0]
+    )
+
+    strategy_options = STRATEGIES_B
+
+    selected_strategy = st.selectbox(
+        "Estrategia del competidor",
+        strategy_options,
+        index=strategy_options.index(default_strategy)
+    )
+
+    if st.button(
+        "Aplicar decisiones y recalcular ruta",
+        type="primary",
+        key="apply_strategies"
+    ):
+
+        # Calcular Minimax con los recursos del escenario actual.
+        minimax_result = compare(
+            depth,
+            scenario.resource_capacity
+        )
+
+        # Aplicar las consecuencias de las dos decisiones.
+        integration = apply_strategic_decisions(
+            scenario,
+            selected_strategy,
+            minimax_result
+        )
+
+        modified_scenario = integration["scenario"]
+
+        # Calcular ruta original y ruta modificada.
+        original_route = search(
+            scenario,
+            scenario.start,
+            scenario.final_destination,
+            "astar"
+        )
+
+        modified_route = search(
+            modified_scenario,
+            modified_scenario.start,
+            modified_scenario.final_destination,
+            "astar"
+        )
+
+        st.session_state["integration_result"] = {
+            "integration": integration,
+            "original_route": original_route,
+            "modified_route": modified_route,
+            "modified_scenario": modified_scenario
+        }
+
+    if "integration_result" in st.session_state:
+
+        data = st.session_state["integration_result"]
+
+        integration = data["integration"]
+        original_route = data["original_route"]
+        modified_route = data["modified_route"]
+        modified_scenario = data["modified_scenario"]
+
+        st.markdown("### Consecuencias de las decisiones")
+
+        for change in integration["changes"]:
+            st.write("•", change)
+
+        st.markdown("### Comparación de rutas")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("**Escenario original**")
+
+            st.metric(
+                "Costo de ruta",
+                original_route["cost"]
+                if original_route["found"]
+                else "Sin ruta"
+            )
+
+            st.pyplot(
+                draw_map(
+                    scenario,
+                    original_route["path"],
+                    "Ruta original"
+                ),
+                use_container_width=True
+            )
+
+        with col2:
+            st.markdown("**Escenario con decisiones aplicadas**")
+
+            st.metric(
+                "Costo de ruta",
+                modified_route["cost"]
+                if modified_route["found"]
+                else "Sin ruta"
+            )
+
+            st.pyplot(
+                draw_map(
+                    modified_scenario,
+                    modified_route["path"],
+                    "Ruta modificada"
+                ),
+                use_container_width=True
+            )
+
+        st.markdown("### Recursos después de la decisión")
+
+        r1, r2, r3 = st.columns(3)
+
+        r1.metric(
+            "Recursos disponibles",
+            integration["remaining_resources"]
+        )
+
+        r2.metric(
+            "Presupuesto restante",
+            integration["remaining_budget"]
+        )
+
+        r3.metric(
+            "Unidades asignadas",
+            integration["allocated_resources"]
+        )
+
+        if original_route["found"] and modified_route["found"]:
+            difference = (
+                modified_route["cost"] - original_route["cost"]
+            )
+
+            st.metric(
+                "Variación del costo de ruta",
+                f"{difference:+g}"
+            )
+
+        elif not modified_route["found"]:
+            st.warning(
+                "Las decisiones aplicadas impidieron encontrar "
+                "una ruta hacia el destino."
+            )
+
 
 with report_tab:
     st.subheader("Centro de experimentación")

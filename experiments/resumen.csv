@@ -1,4 +1,4 @@
 method,best,average,stdev,average_evaluations,average_time_seconds
-Algoritmo genetico,34.0,34.0,0.0,5890.0,0.1501427899900591
-Hill Climbing,34.0,34.0,0.0,6.4,0.004649540007812902
-Recocido simulado,34.0,34.0,0.0,1839.0,0.011624235002091154
+Algoritmo genetico,34.0,34.0,0.0,5890.0,0.11876202001585626
+Hill Climbing,34.0,34.0,0.0,6.4,0.004899640008807183
+Recocido simulado,34.0,34.0,0.0,1839.0,0.015576424973551184
