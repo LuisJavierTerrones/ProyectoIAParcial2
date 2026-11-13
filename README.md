@@ -1,104 +1,266 @@
-# LogiSmart AI
-Sistema inteligente de planificacion, optimizacion y toma de decisiones adversarias.
+#  LogiSmart AI
+### Sistema inteligente de planificación, optimización y toma de decisiones adversarias
 
-## Requisitos
-- Python 3.10 o superior (recomendado 3.11/3.12).
-- Bibliotecas: numpy, pandas, matplotlib, networkx.
+**Proyecto académico – Segundo parcial**  
+**Lenguaje:** Python  
+**Repositorio:** [ProyectoIAParcial2](https://github.com/LuisJavierTerrones/ProyectoIAParcial2)
 
-## Instalacion en Windows
-Abre PowerShell o la terminal de VS Code en la carpeta del proyecto:
+---
 
-```powershell
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+## 1. Descripción del proyecto
+
+LogiSmart AI es un sistema inteligente desarrollado en Python para resolver un problema de planificación logística mediante técnicas de inteligencia artificial y algoritmos de búsqueda y optimización.
+
+El sistema representa una red logística mediante una cuadrícula de 12 × 12, donde se modelan almacenes, destinos, puntos de entrega, obstáculos, terrenos con costos variables y restricciones de recursos.
+
+Su propósito es comparar diferentes estrategias algorítmicas para encontrar rutas, optimizar el orden de las entregas y analizar decisiones estratégicas entre agentes competidores.
+
+## 2. Objetivos
+
+- Encontrar rutas eficientes mediante algoritmos de búsqueda heurística.
+- Optimizar el orden de visita de múltiples puntos de entrega.
+- Comparar técnicas de búsqueda local y metaheurísticas.
+- Analizar situaciones competitivas mediante teoría de juegos.
+- Resolver problemas de decisión adversaria mediante Minimax y poda alfa-beta.
+- Evaluar el rendimiento de los algoritmos mediante experimentos reproducibles.
+
+## 3. Tecnologías utilizadas
+
+| Tecnología | Aplicación |
+|---|---|
+| Python | Lenguaje principal |
+| NumPy | Operaciones y procesamiento numérico |
+| Pandas | Gestión de resultados experimentales |
+| Matplotlib | Visualización de mapas y gráficas |
+| NetworkX | Herramientas de representación de redes |
+| Streamlit | Interfaz gráfica interactiva |
+| JSON | Configuración de escenarios y parámetros |
+| CSV | Almacenamiento de resultados |
+
+## 4. Módulos del sistema
+
+### A. Búsqueda heurística
+Implementa:
+- Greedy Best-First Search.
+- A*.
+
+Compara costos, nodos expandidos, tiempos de ejecución y rutas encontradas.
+
+### B. Búsqueda local
+Implementa Hill Climbing para optimizar el orden de visita de las entregas mediante múltiples soluciones iniciales.
+
+### C. Metaheurísticas
+Incluye:
+- Recocido simulado (Simulated Annealing).
+- Algoritmo genético (Genetic Algorithm).
+
+Se realizan 20 ejecuciones por método, registrando métricas para comparar su rendimiento.
+
+### D. Teoría de juegos
+Modela decisiones estratégicas entre dos jugadores mediante una matriz de pagos. Analiza mejores respuestas, estrategias dominantes y equilibrios de Nash.
+
+### E. Búsqueda adversaria
+Implementa:
+- Minimax.
+- Minimax con poda alfa-beta.
+
+Compara valores de utilidad y cantidad de nodos evaluados.
+
+## 5. Arquitectura del proyecto
+
+```text
+LogiSmart_AI/
+│
+├── app.py
+├── main.py
+├── requirements.txt
+├── README.md
+├── INFORME_TECNICO.md
+├── INFORME_TECNICO_PLANTILLA.md
+├── INICIAR_LOGISMART.bat
+│
+├── config/
+│   ├── escenario.json
+│   ├── escenario_2.json
+│   ├── escenario_3.json
+│   └── parametros.json
+│
+├── logismart/
+│   ├── __init__.py
+│   ├── scenario.py
+│   ├── experiments.py
+│   ├── strategy_integration.py
+│   ├── visualization.py
+│   │
+│   └── algorithms/
+│       ├── __init__.py
+│       ├── pathfinding.py
+│       ├── local_search.py
+│       ├── metaheuristics.py
+│       ├── game_theory.py
+│       └── minimax.py
+│
+├── experiments/
+│   ├── resultados.csv
+│   ├── resumen.csv
+│   └── comparacion_evaluaciones.png
+│
+└── tests/
+    └── test_logismart.py
 ```
 
-Si PowerShell bloquea `Activate.ps1`, no es necesario activar el entorno. Ejecuta directamente:
-```powershell
-.\.venv\Scripts\python.exe main.py
-```
+## 6. Instalación
 
-Alternativa CMD:
+### Requisitos previos
+
+- Windows 10 o superior.
+- Python 3.10 o superior.
+- Git.
+- Conexión a Internet para instalar las dependencias.
+
+### Clonar el repositorio
+
+Abrir CMD y ejecutar:
+
 ```cmd
-.venv\Scripts\activate.bat
-python -m pip install -r requirements.txt
-python main.py
+git clone https://github.com/LuisJavierTerrones/ProyectoIAParcial2.git
 ```
 
-## Ejecucion
-```bash
-python main.py
-```
-El programa imprime resultados de los cinco modulos, muestra una visualizacion del mapa y guarda `experiments/resultados.csv` y `experiments/resumen.csv`.
+Entrar en la carpeta:
 
-## Pruebas
-```bash
-python -m unittest discover -s tests -v
+```cmd
+cd ProyectoIAParcial2
 ```
 
-## Uso en Google Colab
-1. Sube el ZIP del proyecto a Colab y descomprimelo.
-2. En una celda, cambia al directorio extraido.
-3. Ejecuta:
-```python
-%pip install -r requirements.txt
-!python main.py
-```
-Tambien se incluye `LogiSmart_AI_Colab.ipynb`.
+### Crear entorno virtual
 
-## Estructura
-- `config/`: escenario y parametros externos en JSON.
-- `logismart/scenario.py`: representacion y validacion compartida.
-- `logismart/algorithms/`: implementaciones de busqueda, optimizacion y juegos.
-- `logismart/experiments.py`: ejecuciones repetidas y CSV.
-- `tests/`: pruebas automatizadas.
-- `main.py`: flujo de ejecucion integrado.
-
-## Modelo y supuestos
-- Cuadricula de 12x12, movimientos ortogonales, sin diagonales.
-- Entrar a una celda cuesta 1; el terreno dificil cuesta 3.
-- Obstaculos no transitables.
-- El costo del recorrido de entregas se calcula concatenando caminos optimos A* entre paradas consecutivas.
-- Hill Climbing, recocido simulado y algoritmo genetico optimizan el orden de visita, no el movimiento dentro de cada tramo.
-- La heuristica Manhattan es admisible para A* porque el costo minimo por movimiento es 1 y no se permiten diagonales.
-- Greedy prioriza h(n), por lo que no garantiza costo optimo.
-- El juego estatico y el subproblema minimax son modelos didacticos de decisiones estrategicas; sus pagos/utilidades son supuestos parametrizados para este escenario, no datos empiricos de una empresa real.
-
-## Limitaciones que deben explicarse
-- El escenario es sintetico y pequeno.
-- El modelo de recursos y competencia es una abstraccion.
-- Los resultados dependen de la semilla y parametros.
-- El modulo de teoria de juegos usa pagos definidos en el codigo.
-- Minimax modela una secuencia simplificada de asignacion/disputa de recursos.
-
-## Trazabilidad
-Los resultados experimentales se generan al ejecutar el programa. No se incluyen resultados simulados como si fueran mediciones reales. Registra version de Python, fecha, parametros y semilla al realizar la ejecucion final.
-
-
-## Resultados verificados de la revisión
-- Se ejecutaron 9 pruebas automatizadas; todas aprobaron.
-- Los tres escenarios de 12x12 encontraron ruta con Greedy y A*.
-- En la instancia base, ambos encontraron costo 22 para el trayecto directo inicio-destino.
-- El recorrido que visita las tres entregas en el orden configurado tuvo costo 36.
-- En las ejecuciones de optimización, los tres métodos obtuvieron costo 34.
-- Los CSV se regeneran al ejecutar `python main.py`; los tiempos dependen del equipo y no deben compararse como constantes universales.
-
-## Alcance de la integración y limitaciones
-Los cinco módulos comparten el objeto `Scenario` y la configuración externa. El planificador de rutas y los optimizadores calculan el costo del orden de entregas; teoría de juegos y minimax analizan decisiones estratégicas con modelos didácticos. En esta versión, las salidas estratégicas se reportan junto con el plan, pero todavía no modifican automáticamente el mapa ni el costo de la ruta. Por tanto, no se debe afirmar que el competidor ya altera dinámicamente la ruta final. Esta es una mejora futura recomendada para satisfacer de forma más estricta la integración adversaria solicitada.
-
-La búsqueda multi-parada suma rutas A* entre paradas consecutivas. La optimalidad de cada tramo no garantiza por sí sola que el orden global de entregas sea óptimo; ese orden es lo que intentan mejorar Hill Climbing y las metaheurísticas.
-
-
-## Interfaz gráfica (recomendada para la demostración)
-
-El proyecto incluye `app.py`, una interfaz web local desarrollada con Streamlit que llama a los módulos reales de `logismart/`. Permite visualizar el mapa, cambiar entre escenarios, ejecutar Greedy/A*, comparar algoritmos, ejecutar optimizadores, consultar teoría de juegos y Minimax, y descargar los CSV experimentales.
-
-### Ejecutar la interfaz
-
-```bash
-python -m pip install -r requirements.txt
-python -m streamlit run app.py
+```cmd
+py -m venv .venv
 ```
 
-Se abrirá una pestaña del navegador en una dirección local (normalmente `http://localhost:8501`). La interfaz no sustituye `main.py`: ambos puntos de entrada usan las mismas implementaciones algorítmicas.
+### Instalar dependencias
+
+```cmd
+.venv\Scripts\python.exe -m pip install --upgrade pip
+```
+
+```cmd
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+## 7. Ejecución del sistema
+
+### Interfaz gráfica
+
+Para iniciar la aplicación interactiva:
+
+```cmd
+.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+La aplicación permite:
+
+- Visualizar los escenarios logísticos.
+- Seleccionar algoritmos de búsqueda.
+- Comparar Greedy y A*.
+- Ejecutar métodos de optimización.
+- Consultar análisis de teoría de juegos.
+- Ejecutar Minimax y poda alfa-beta.
+- Consultar y descargar resultados experimentales.
+
+### Ejecución desde consola
+
+También es posible ejecutar el flujo principal:
+
+```cmd
+.venv\Scripts\python.exe main.py
+```
+
+Este proceso ejecuta los módulos algorítmicos y genera los resultados experimentales correspondientes.
+
+## 8. Pruebas del sistema
+
+Para ejecutar las pruebas automatizadas:
+
+```cmd
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Las pruebas contemplan:
+
+- Validación de dimensiones del escenario.
+- Búsqueda de rutas mediante A* y Greedy.
+- Evaluación de múltiples escenarios.
+- Validación de algoritmos incorrectos.
+- Detección de escenarios sin solución.
+- Ejecuciones de Hill Climbing.
+- Comprobación de equilibrios de Nash.
+- Comparación entre Minimax y poda alfa-beta.
+
+## 9. Experimentos y resultados
+
+Los experimentos se almacenan en la carpeta `experiments/`.
+
+| Archivo | Contenido |
+|---|---|
+| resultados.csv | Registros de ejecuciones experimentales |
+| resumen.csv | Estadísticas comparativas |
+| comparacion_evaluaciones.png | Visualización de métricas |
+
+Las métricas utilizadas incluyen:
+
+- Costo de solución.
+- Tiempo de ejecución.
+- Nodos expandidos.
+- Número de evaluaciones.
+- Mejor resultado.
+- Promedio.
+- Desviación estándar.
+
+Los resultados deben analizarse considerando los parámetros y las semillas aleatorias utilizados.
+
+## 10. Modelo logístico y supuestos
+
+El entorno utiliza una cuadrícula de 12 × 12 con movimientos ortogonales.
+
+Se consideran los siguientes elementos:
+
+- Almacén como punto de inicio.
+- Tres puntos de entrega.
+- Destino final.
+- Obstáculos no transitables.
+- Terrenos con costos de desplazamiento variables.
+- Recursos limitados.
+- Modelos estratégicos de competencia.
+
+La heurística Manhattan se utiliza para estimar distancias y es admisible para A* bajo los costos mínimos y movimientos definidos.
+
+Greedy prioriza la heurística, mientras que A* considera el costo acumulado y la estimación restante.
+
+Los algoritmos de optimización trabajan sobre el orden de visita de las entregas, utilizando el costo de los recorridos entre paradas.
+
+## 11. Limitaciones
+
+- Los escenarios representan un entorno logístico sintético.
+- Los resultados dependen de los parámetros y semillas configurados.
+- Los pagos de teoría de juegos son supuestos definidos para el modelo.
+- Minimax representa un subproblema simplificado de asignación de recursos.
+- Las decisiones estratégicas se analizan junto con la planificación, pero sus resultados todavía no modifican automáticamente el mapa ni el costo de la ruta final.
+
+## 12. Integración y trabajo futuro
+
+El sistema comparte una representación común del escenario entre sus módulos algorítmicos.
+
+Como mejoras futuras se contempla:
+
+- Integrar dinámicamente las decisiones del competidor en los costos de desplazamiento.
+- Incorporar restricciones de recursos directamente en la planificación.
+- Ampliar la cantidad y complejidad de los escenarios.
+- Mejorar la visualización de las comparaciones experimentales.
+- Incorporar nuevos criterios de optimización.
+
+## 13. Autor
+
+**Desarrollado por:** Luis Javier Terrones Muñoz.
+
+Proyecto académico desarrollado en Python como sistema inteligente de planificación, optimización y toma de decisiones adversarias.
